@@ -77,6 +77,11 @@
 #include <switch.h>
 #endif
 
+#ifdef __WII__
+#include "wii/config.h"
+#include "wii/input.h"
+#endif
+
 #ifdef WINDOWS_STORE
 #include "xbox_one_series/config.h"
 #endif
@@ -451,6 +456,10 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 		return SDL_APP_FAILURE;
 	}
 
+#ifdef __WII__
+	WII_InputInit();
+#endif
+
 	// [library:window]
 	// Original game checks for an existing instance here.
 	// We don't really need that.
@@ -527,6 +536,10 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 	if (g_closed) {
 		return SDL_APP_SUCCESS;
 	}
+
+#ifdef __WII__
+	WII_InputPoll();
+#endif
 
 	if (!g_isle->Tick()) {
 		ShowStartupError();
@@ -1074,6 +1087,10 @@ void SDL_AppQuit(void* appstate, SDL_AppResult result)
 		InputManager()->StopAutoDragTimer();
 	}
 
+#ifdef __WII__
+	WII_InputShutdown();
+#endif
+
 	if (window) {
 #ifdef __EMSCRIPTEN__
 		Emscripten_ClearDroppedFiles();
@@ -1415,6 +1432,9 @@ bool IsleApp::LoadConfig()
 #endif
 #ifdef __SWITCH__
 		NX_SetupDefaultConfigOverrides(dict);
+#endif
+#ifdef __WII__
+		WII_SetupDefaultConfigOverrides(dict);
 #endif
 #ifdef WINDOWS_STORE
 		XBONE_SetupDefaultConfigOverrides(dict);

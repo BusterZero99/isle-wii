@@ -55,6 +55,13 @@ if (NINTENDO_SWITCH)
   add_compile_definitions(SDL_VIDEO_DRIVER_SWITCH)
 endif()
 
+if (WII)
+  set(CMAKE_TOOLCHAIN_FILE "${DEVKITPPC}/share/devkitppc.cmake" CACHE PATH "toolchain file")
+  add_compile_definitions(__WII__)
+  add_compile_definitions(SDL_PLATFORM_WII)
+  add_compile_definitions(SDL_VIDEO_DRIVER_WII)
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 include(CheckCXXSourceCompiles)
@@ -815,6 +822,13 @@ if (ISLE_BUILD_APP)
       ISLE/switch/config.cpp
     )
   endif()
+  if(WII)
+    target_sources(isle PRIVATE
+      ISLE/wii/config.cpp
+      ISLE/wii/input.cpp
+    )
+    target_link_libraries(isle PRIVATE -lwiiuse -lbte -logc)
+  endif()
   if(WINDOWS_STORE)
     target_sources(isle PRIVATE
       ISLE/xbox_one_series/config.cpp
@@ -1088,6 +1102,7 @@ if (ISLE_BUILD_CONFIG)
     BUNDLE DESTINATION "."
   )
 endif()
+
 if(EMSCRIPTEN)
   install(FILES "$<TARGET_FILE_DIR:isle>/isle.js" "$<TARGET_FILE_DIR:isle>/isle.wasm"
     DESTINATION "${CMAKE_INSTALL_BINDIR}"
