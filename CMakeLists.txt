@@ -1109,6 +1109,28 @@ if(EMSCRIPTEN)
   )
 endif()
 
+if(WII)
+  find_program(ELF2DOL NAMES elf2dol)
+
+  if(ELF2DOL)
+    add_custom_command(
+      OUTPUT "boot.dol"
+      COMMAND "${ELF2DOL}"
+        "$<TARGET_FILE:isle>"
+        "$<TARGET_FILE_DIR:isle>/boot.dol"
+      DEPENDS isle
+      COMMENT "Building Wii DOL executable target boot.dol"
+      VERBATIM
+    )
+
+    add_custom_target(wii-dol
+      ALL
+      DEPENDS "${CMAKE_BINARY_DIR}/boot.dol"
+      COMMENT "Build Wii boot.dol from ELF"
+    )
+  endif()
+endif()
+
 add_subdirectory(packaging)
 
 set(CPACK_PACKAGE_DIRECTORY "dist")
